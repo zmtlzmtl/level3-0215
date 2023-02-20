@@ -4,6 +4,14 @@ const usersRouter = require("./routes/users.route");
 const postsRouter = require("./routes/posts.route");
 const app = express();
 const PORT = 3018;
+const { sequelize } = require("./models/index.js");
+
+async function main() {
+  // sequelize에 테이블들이 존재하지 않는 경우 태이블을 생성합니다.
+  await sequelize.sync();
+}
+
+main();
 
 app.use(express.json());
 app.use(cookieParser());
