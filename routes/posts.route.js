@@ -1,6 +1,6 @@
 const express = require("express");
 const { Op } = require("sequelize");
-const { Posts } = require("../models");
+const { Posts, Users } = require("../models");
 const authMiddleware = require("../middlewares/auth-middleware");
 const router = express.Router();
 
@@ -22,10 +22,16 @@ router.post("/posts", authMiddleware, async (req, res) => {
 router.get("/posts", async (req, res) => {
     const posts = await Posts.findAll({
       attributes: ["postId", "title", "createdAt", "updatedAt"],
+      include: [
+        {
+          model: Users,  // 1:1 관계를 맺고있는 UserInfos 테이블을 조회합니다.
+          attributes: ["userId", "nickname"],
+        }
+      ],
       order: [['createdAt', 'DESC']],  //DESC 내림차순 조회
     });
   
-    return res.status(200).json({ data: posts });
+    return res.status(200).json({ posts: posts });
   });
 
 // 게시글 상세 조회
@@ -33,10 +39,16 @@ router.get("/posts/:postId", async (req, res) => {
     const { postId } = req.params;
     const post = await Posts.findOne({
       attributes: ["postId", "title", "content", "createdAt", "updatedAt"],
+      include: [
+        {
+          model: Users,  // 1:1 관계를 맺고있는 UserInfos 테이블을 조회합니다.
+          attributes: ["userId", "nickname"],
+        }
+      ],
       where: { postId }
     });
   
-    return res.status(200).json({ data: post });
+    return res.status(200).json({ posts: post });
   });
 
 // 게시글 수정
